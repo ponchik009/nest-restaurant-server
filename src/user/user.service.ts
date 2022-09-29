@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/createUserDto.dto';
+import { UpdateUserDto } from './dto/updateUserDto.dto';
 import { Role } from './entities/role.entity';
 
 import { User } from './entities/user.entity';
@@ -64,5 +65,40 @@ export class UserService {
         HttpStatus.BAD_REQUEST,
       );
     }
+  }
+
+  public async getAll() {
+    return await this.userRepo.find({
+      withDeleted: true,
+    });
+  }
+
+  public async block(id: number) {
+    return await this.userRepo.softDelete(id);
+  }
+
+  public async unblock(id: number) {
+    return await this.userRepo.update(id, {
+      deletedAt: null,
+    });
+  }
+
+  public async update(id: number, dto: UpdateUserDto) {
+    const user = await this.userRepo.findOne({
+      where: { id },
+      relations: {
+        role: true,
+      },
+      withDeleted: true,
+    });
+
+    if (!user) {
+      throw new HttpException('Пользователь не найден!', HttpStatus.NOT_FOUND);
+    }
+
+    return await this.userRepo.save({
+      ...user,
+      ...dto,
+    });
   }
 }
