@@ -6,6 +6,8 @@ import { DatabaseModule } from './database/database.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { OrderModule } from './order/order.module';
+import { DishModule } from './dish/dish.module';
+import { FileModule } from './file/file.module';
 
 @Module({
   imports: [
@@ -16,6 +18,8 @@ import { OrderModule } from './order/order.module';
     DatabaseModule,
     AuthModule,
     OrderModule,
+    DishModule,
+    FileModule,
   ],
   controllers: [],
   providers: [],

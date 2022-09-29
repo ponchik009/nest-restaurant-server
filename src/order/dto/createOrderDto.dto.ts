@@ -3,5 +3,7 @@ export class CreateOrderDto {
 
   public totalPrice: number;
 
+  public tableNumber: number;
+
   public waiterId: number;
 }

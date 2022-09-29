@@ -27,6 +27,9 @@ export class Order {
   @Column()
   totalPrice: number;
 
+  @Column()
+  tableNumber: number;
+
   @Column({ type: 'enum', enum: OrderStatuses, default: OrderStatuses.SENT })
   status: OrderStatuses;
 
