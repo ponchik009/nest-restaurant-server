@@ -14,7 +14,6 @@ import JwtAuthenticationGuard from './guard/jwt.guard';
 import { LocalAuthenticationGuard } from './guard/local.guard';
 import RequestWithUser from './interface/requestWithUser.interface';
 import { Response } from 'express';
-import { LoginDto } from 'src/user/dto/loginDto.dto';
 
 @Controller('auth')
 export class AuthController {
