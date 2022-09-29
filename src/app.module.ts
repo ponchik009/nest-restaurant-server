@@ -5,6 +5,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { DatabaseModule } from './database/database.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { AuthModule } from './auth/auth.module';
     }),
     DatabaseModule,
     AuthModule,
+    OrderModule,
   ],
   controllers: [],
   providers: [],

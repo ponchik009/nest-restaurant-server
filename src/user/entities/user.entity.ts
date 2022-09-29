@@ -1,9 +1,11 @@
+import { Order } from 'src/order/entities/order.entity';
 import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
   JoinColumn,
   ManyToOne,
+  OneToMany,
 } from 'typeorm';
 import { Role } from './role.entity';
 
@@ -24,4 +26,7 @@ export class User {
   @ManyToOne(() => Role, (role) => role.users)
   @JoinColumn()
   role: Role;
+
+  @OneToMany(() => Order, (order) => order.waiter)
+  orders: Order[];
 }

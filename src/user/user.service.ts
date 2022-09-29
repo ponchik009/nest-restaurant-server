@@ -26,6 +26,8 @@ export class UserService {
       throw new HttpException('Пользователь не найден!', HttpStatus.NOT_FOUND);
     }
 
+    user.password = undefined;
+
     return user;
   }
 
