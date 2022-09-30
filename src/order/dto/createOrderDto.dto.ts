@@ -7,8 +7,6 @@ export interface IOrderDish {
 }
 
 export class CreateOrderDto {
-  public date: Date;
-
   public tableNumber: number;
 
   public orderDishes: IOrderDish[];

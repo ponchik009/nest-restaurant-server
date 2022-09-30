@@ -56,7 +56,7 @@ export class OrderService {
     const order = await this.orderRepo.save({
       tableNumber: dto.tableNumber,
       totalPrice: totalCount,
-      date: new Date(dto.date),
+      date: new Date(Date.now()),
       waiter,
     });
 
