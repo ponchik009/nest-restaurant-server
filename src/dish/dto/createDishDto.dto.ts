@@ -15,6 +15,8 @@ export class CreateDishDto {
 
   calories?: number;
 
+  cookingTime?: number;
+
   isVegan?: boolean;
 
   isAlcoholic?: boolean;

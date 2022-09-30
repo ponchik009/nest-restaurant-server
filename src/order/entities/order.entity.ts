@@ -1,3 +1,4 @@
+import { OrderDish } from 'src/dish/entities/orderDish.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
   Entity,
@@ -5,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
   JoinColumn,
   ManyToOne,
+  OneToMany,
 } from 'typeorm';
 
 export enum OrderStatuses {
@@ -24,7 +26,7 @@ export class Order {
   @Column()
   date: Date;
 
-  @Column()
+  @Column({ nullable: true })
   totalPrice: number;
 
   @Column()
@@ -36,4 +38,7 @@ export class Order {
   @ManyToOne(() => User, (user) => user.orders)
   @JoinColumn()
   waiter: User;
+
+  @OneToMany(() => OrderDish, (orderDish) => orderDish.order)
+  orderDishes: OrderDish[];
 }

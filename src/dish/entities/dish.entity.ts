@@ -32,6 +32,9 @@ export class Dish {
   @Column({ nullable: false })
   price: number;
 
+  @Column({ nullable: false, default: 0 })
+  cookingTime: number;
+
   @Column({ nullable: true })
   image: string;
 
