@@ -70,16 +70,39 @@ export class UserService {
   public async getAll() {
     return await this.userRepo.find({
       withDeleted: true,
+      relations: {
+        role: true,
+      },
     });
   }
 
   public async block(id: number) {
-    return await this.userRepo.softDelete(id);
+    await this.userRepo.softDelete(id);
+
+    return this.userRepo.findOne({
+      where: {
+        id: id,
+      },
+      relations: {
+        role: true,
+      },
+      withDeleted: true,
+    });
   }
 
   public async unblock(id: number) {
-    return await this.userRepo.update(id, {
+    await this.userRepo.update(id, {
       deletedAt: null,
+    });
+
+    return this.userRepo.findOne({
+      where: {
+        id: id,
+      },
+      relations: {
+        role: true,
+      },
+      withDeleted: true,
     });
   }
 
