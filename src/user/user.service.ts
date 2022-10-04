@@ -1,3 +1,4 @@
+import * as bcrypt from 'bcrypt';
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/createUserDto.dto';
@@ -30,6 +31,18 @@ export class UserService {
     user.password = undefined;
 
     return user;
+  }
+
+  public async getByIdForManager(id: number) {
+    return this.userRepo.findOne({
+      where: {
+        id,
+      },
+      relations: {
+        role: true,
+      },
+      withDeleted: true,
+    });
   }
 
   public async getByLogin(login: string): Promise<User> {
@@ -76,6 +89,10 @@ export class UserService {
     });
   }
 
+  public async getRoles() {
+    return this.roleRepo.find();
+  }
+
   public async block(id: number) {
     await this.userRepo.softDelete(id);
 
@@ -119,9 +136,20 @@ export class UserService {
       throw new HttpException('Пользователь не найден!', HttpStatus.NOT_FOUND);
     }
 
-    return await this.userRepo.save({
+    const hashedPassword = dto.password
+      ? await bcrypt.hash(dto.password, 10)
+      : user.password;
+
+    await this.userRepo.save({
       ...user,
       ...dto,
+      password: dto.password ? hashedPassword : user.password,
+    });
+
+    return this.userRepo.findOne({
+      where: { id },
+      relations: { role: true },
+      withDeleted: true,
     });
   }
 }

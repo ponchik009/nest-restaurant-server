@@ -21,6 +21,22 @@ export class UserController {
   @UseGuards(RoleGuard)
   @UseGuards(JwtAuthenticationGuard)
   @Roles(MANAGER)
+  @Get('/roles')
+  async getRoles() {
+    return this.userService.getRoles();
+  }
+
+  @UseGuards(RoleGuard)
+  @UseGuards(JwtAuthenticationGuard)
+  @Roles(MANAGER)
+  @Get(':id')
+  async getById(@Param('id') id: number) {
+    return this.userService.getByIdForManager(id);
+  }
+
+  @UseGuards(RoleGuard)
+  @UseGuards(JwtAuthenticationGuard)
+  @Roles(MANAGER)
   @Patch('/block/:id')
   async block(@Param('id') id: number) {
     return this.userService.block(id);
