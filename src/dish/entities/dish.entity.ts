@@ -45,10 +45,10 @@ export class Dish {
   calories: number;
 
   @Column({ nullable: true })
-  isVegan?: boolean;
+  isVegan: boolean;
 
   @Column({ nullable: true })
-  isAlcoholic?: boolean;
+  isAlcoholic: boolean;
 
   @Column({ type: 'enum', enum: DishTypes, nullable: false })
   dishType: DishTypes;
