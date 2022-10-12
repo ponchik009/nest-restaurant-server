@@ -26,8 +26,13 @@ export class DishService {
 
     console.log(dto);
 
+    const isAlcoholic = String(dto?.isAlcoholic) === 'true' ? true : false;
+    const isVegan = String(dto?.isVegan) === 'true' ? true : false;
+
     return await this.dishRepo.save({
       ...dto,
+      isAlcoholic,
+      isVegan,
       image: filepath,
     });
   }
@@ -47,10 +52,13 @@ export class DishService {
       throw new HttpException('Блюдо не найдено!', HttpStatus.NOT_FOUND);
     }
 
+    const isAlcoholic = String(dto?.isAlcoholic) === 'true' ? true : false;
+    const isVegan = String(dto?.isVegan) === 'true' ? true : false;
+
     return await this.dishRepo.save({
       ...dish,
-      isAlcoholic: String(dto?.isAlcoholic) === 'true' ? true : false,
-      isVegan: String(dto?.isVegan) === 'true' ? true : false,
+      isAlcoholic,
+      isVegan,
       image: filepath,
     });
   }
