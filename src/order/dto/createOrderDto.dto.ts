@@ -1,7 +1,8 @@
+import { Dish } from 'src/dish/entities/dish.entity';
 import { OrderDish } from 'src/dish/entities/orderDish.entity';
 
 export interface IOrderDish {
-  dishId: number;
+  dish: Dish;
   comment: string;
   count: number;
 }

@@ -36,7 +36,7 @@ export class OrderService {
   }
 
   async create(dto: CreateOrderDto, waiter: User) {
-    const dishesIds = dto.orderDishes.map((orderDish) => orderDish.dishId);
+    const dishesIds = dto.orderDishes.map((orderDish) => orderDish.dish.id);
     const dishes = await this.dishRepo.find({
       where: {
         id: In(dishesIds),
@@ -46,7 +46,7 @@ export class OrderService {
     // зато за О(n)
     const countOfDishes = new Map();
     dto.orderDishes.forEach((orderDish) =>
-      countOfDishes.set(orderDish.dishId, orderDish.count || 1),
+      countOfDishes.set(orderDish.dish.id, orderDish.count || 1),
     );
     const totalCount = dishes.reduce(
       (acc, value) => acc + value.price * countOfDishes.get(value.id),
@@ -62,7 +62,7 @@ export class OrderService {
 
     const orderDishesEntities = dto.orderDishes.map((orderDish) => ({
       dish: {
-        id: orderDish.dishId,
+        id: orderDish.dish.id,
       },
       order: {
         id: order.id,
