@@ -1,3 +1,4 @@
+import { Req, UseGuards } from '@nestjs/common';
 import {
   ConnectedSocket,
   MessageBody,
@@ -6,9 +7,13 @@ import {
   WsResponse,
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
+import JwtAuthenticationGuard from 'src/auth/guard/jwt.guard';
+import RequestWithUser from 'src/auth/interface/requestWithUser.interface';
+import { User } from 'src/user/entities/user.entity';
+import { CreateOrderDto } from './dto/createOrderDto.dto';
 import { OrderService } from './order.service';
 
-@WebSocketGateway(7778, { cors: true })
+@WebSocketGateway(7778, { cookie: true })
 export class OrderGateway {
   private kitchenRoom = 'kitchen';
 
@@ -18,19 +23,21 @@ export class OrderGateway {
   handleMessage(
     @MessageBody() data: string,
     @ConnectedSocket() client: Socket,
+    @Req() request: RequestWithUser,
   ) {
     client.join(this.kitchenRoom);
     client.to(this.kitchenRoom).emit('joinedKitchen', data);
   }
 
+  // @UseGuards(JwtAuthenticationGuard)
   @SubscribeMessage('createOrder')
-  handleCreateOrder(
-    @MessageBody() data: string,
+  async handleCreateOrder(
+    @MessageBody() data: [CreateOrderDto, User],
     @ConnectedSocket() client: Socket,
+    @Req() request: RequestWithUser,
   ) {
-    // client.broadcast.emit('lalala', 'text');
-    // client.broadcast.to()
     console.log(data);
-    client.to(this.kitchenRoom).emit('orderCreated', data);
+    const order = await this.orderService.create(data[0], data[1]);
+    client.to(this.kitchenRoom).emit('orderCreated', order);
   }
 }
