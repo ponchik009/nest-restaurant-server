@@ -5,7 +5,7 @@ import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { In, Repository } from 'typeorm';
 import { CreateOrderDto } from './dto/createOrderDto.dto';
-import { Order } from './entities/order.entity';
+import { Order, OrderStatuses } from './entities/order.entity';
 
 @Injectable()
 export class OrderService {
@@ -20,6 +20,20 @@ export class OrderService {
 
   async getAll() {
     return await this.orderRepo.find({
+      relations: ['orderDishes', 'orderDishes.dish'],
+    });
+  }
+
+  async getForKitchen() {
+    return await this.orderRepo.find({
+      where: [
+        {
+          status: OrderStatuses.SENT,
+        },
+        {
+          status: OrderStatuses.COOKING,
+        },
+      ],
       relations: ['orderDishes', 'orderDishes.dish'],
     });
   }

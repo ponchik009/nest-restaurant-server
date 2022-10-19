@@ -3,7 +3,7 @@ import JwtAuthenticationGuard from 'src/auth/guard/jwt.guard';
 import { RoleGuard } from 'src/auth/guard/role.guard';
 import RequestWithUser from 'src/auth/interface/requestWithUser.interface';
 import { Roles } from 'src/auth/role.decorator';
-import { MANAGER, WAITER } from 'src/const/roles';
+import { KITCHEN, MANAGER, WAITER } from 'src/const/roles';
 import { CreateOrderDto } from './dto/createOrderDto.dto';
 import { OrderService } from './order.service';
 
@@ -25,6 +25,14 @@ export class OrderController {
   @Get('by_waiter')
   async getByWaiter(@Req() request: RequestWithUser) {
     return this.orderService.getByWaiter(request.user);
+  }
+
+  @UseGuards(RoleGuard)
+  @UseGuards(JwtAuthenticationGuard)
+  @Roles(KITCHEN)
+  @Get('for_kitchen')
+  async getForKitchen() {
+    return this.orderService.getForKitchen();
   }
 
   @UseGuards(RoleGuard)
