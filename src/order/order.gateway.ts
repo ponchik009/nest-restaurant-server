@@ -4,6 +4,7 @@ import {
   MessageBody,
   SubscribeMessage,
   WebSocketGateway,
+  WebSocketServer,
   WsResponse,
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
@@ -39,5 +40,29 @@ export class OrderGateway {
     console.log(data);
     const order = await this.orderService.create(data[0], data[1]);
     client.to(this.kitchenRoom).emit('orderCreated', order);
+  }
+
+  @SubscribeMessage('startCooking')
+  async handleStartCooking(
+    @MessageBody() data: number,
+    @ConnectedSocket() client: Socket,
+    @Req() request: RequestWithUser,
+  ) {
+    console.log(data);
+    const updatedOrderDish = await this.orderService.startCooking(data);
+    client.to(this.kitchenRoom).emit('startedCooking', updatedOrderDish);
+    client.emit('startedCooking', updatedOrderDish);
+  }
+
+  @SubscribeMessage('endCooking')
+  async handleEndCooking(
+    @MessageBody() data: number,
+    @ConnectedSocket() client: Socket,
+    @Req() request: RequestWithUser,
+  ) {
+    console.log(data);
+    const updatedOrderDish = await this.orderService.endCooking(data);
+    client.to(this.kitchenRoom).emit('endedCooking', updatedOrderDish);
+    client.emit('endedCooking', updatedOrderDish);
   }
 }

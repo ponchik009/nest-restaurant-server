@@ -1,6 +1,9 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Dish } from 'src/dish/entities/dish.entity';
-import { OrderDish } from 'src/dish/entities/orderDish.entity';
+import {
+  OrderDish,
+  OrderDishStatuses,
+} from 'src/dish/entities/orderDish.entity';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { In, Repository } from 'typeorm';
@@ -35,7 +38,77 @@ export class OrderService {
         },
       ],
       relations: ['orderDishes', 'orderDishes.dish'],
+      order: {
+        date: 'DESC',
+      },
     });
+  }
+
+  async startCooking(orderDishId: number) {
+    const orderDish = await this.orderDishesRepo.findOne({
+      where: { id: orderDishId },
+      relations: { order: true },
+    });
+    const order = await this.orderRepo.findOne({
+      where: {
+        id: orderDish.order.id,
+      },
+      relations: {
+        orderDishes: true,
+      },
+    });
+
+    const promise = this.orderDishesRepo.update(orderDishId, {
+      orderDishStatus: OrderDishStatuses.COOKING,
+    });
+
+    this.orderRepo.update(order.id, {
+      status: OrderStatuses.COOKING,
+    });
+
+    return promise.then(() =>
+      this.orderDishesRepo.findOne({
+        where: { id: orderDishId },
+        relations: { order: true },
+      }),
+    );
+  }
+
+  async endCooking(orderDishId: number) {
+    const orderDish = await this.orderDishesRepo.findOne({
+      where: { id: orderDishId },
+      relations: { order: true },
+    });
+    const order = await this.orderRepo.findOne({
+      where: {
+        id: orderDish.order.id,
+      },
+      relations: {
+        orderDishes: true,
+      },
+    });
+
+    const promise = this.orderDishesRepo.update(orderDishId, {
+      orderDishStatus: OrderDishStatuses.READY,
+    });
+
+    if (
+      !order.orderDishes.some(
+        (d) =>
+          d.id !== orderDish.id && d.orderDishStatus === OrderDishStatuses.SENT,
+      )
+    ) {
+      await this.orderRepo.update(order.id, {
+        status: OrderStatuses.READY,
+      });
+    }
+
+    return promise.then(() =>
+      this.orderDishesRepo.findOne({
+        where: { id: orderDishId },
+        relations: { order: true },
+      }),
+    );
   }
 
   async getByWaiter(waiter: User) {
