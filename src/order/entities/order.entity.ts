@@ -14,7 +14,6 @@ export enum OrderStatuses {
   COOKING = 'cooking',
   READY = 'ready',
   DELIVERED = 'delivered',
-  PAID = 'paid',
   CANCELED = 'canceled',
 }
 
@@ -31,6 +30,9 @@ export class Order {
 
   @Column()
   tableNumber: number;
+
+  @Column({ default: false })
+  isPaid: boolean;
 
   @Column({ type: 'enum', enum: OrderStatuses, default: OrderStatuses.SENT })
   status: OrderStatuses;
