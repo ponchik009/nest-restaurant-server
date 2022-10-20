@@ -69,7 +69,7 @@ export class OrderService {
     return promise.then(() =>
       this.orderDishesRepo.findOne({
         where: { id: orderDishId },
-        relations: { order: true },
+        relations: ['order', 'order.waiter'],
       }),
     );
   }
@@ -95,7 +95,8 @@ export class OrderService {
     if (
       !order.orderDishes.some(
         (d) =>
-          d.id !== orderDish.id && d.orderDishStatus === OrderDishStatuses.SENT,
+          d.id !== orderDish.id &&
+          d.orderDishStatus !== OrderDishStatuses.READY,
       )
     ) {
       await this.orderRepo.update(order.id, {
@@ -106,7 +107,45 @@ export class OrderService {
     return promise.then(() =>
       this.orderDishesRepo.findOne({
         where: { id: orderDishId },
-        relations: { order: true },
+        relations: ['order', 'order.waiter'],
+      }),
+    );
+  }
+
+  async deliverDish(orderDishId: number) {
+    const orderDish = await this.orderDishesRepo.findOne({
+      where: { id: orderDishId },
+      relations: { order: true },
+    });
+    const order = await this.orderRepo.findOne({
+      where: {
+        id: orderDish.order.id,
+      },
+      relations: {
+        orderDishes: true,
+      },
+    });
+
+    const promise = this.orderDishesRepo.update(orderDishId, {
+      orderDishStatus: OrderDishStatuses.DELIVERED,
+    });
+
+    if (
+      !order.orderDishes.some(
+        (d) =>
+          d.id !== orderDish.id &&
+          d.orderDishStatus !== OrderDishStatuses.DELIVERED,
+      )
+    ) {
+      await this.orderRepo.update(order.id, {
+        status: OrderStatuses.DELIVERED,
+      });
+    }
+
+    return promise.then(() =>
+      this.orderDishesRepo.findOne({
+        where: { id: orderDishId },
+        relations: ['order', 'order.waiter'],
       }),
     );
   }
@@ -119,6 +158,9 @@ export class OrderService {
         },
       },
       relations: ['orderDishes', 'orderDishes.dish'],
+      order: {
+        date: 'DESC',
+      },
     });
   }
 
@@ -149,7 +191,7 @@ export class OrderService {
 
     return this.orderRepo.findOne({
       where: { id: order.id },
-      relations: ['orderDishes', 'orderDishes.dish'],
+      relations: ['orderDishes', 'orderDishes.dish', 'waiter'],
     });
   }
 }

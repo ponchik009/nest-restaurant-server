@@ -40,6 +40,7 @@ export class OrderGateway {
     console.log(data);
     const order = await this.orderService.create(data[0], data[1]);
     client.to(this.kitchenRoom).emit('orderCreated', order);
+    client.emit('orderCreated', order);
   }
 
   @SubscribeMessage('startCooking')
@@ -64,5 +65,17 @@ export class OrderGateway {
     const updatedOrderDish = await this.orderService.endCooking(data);
     client.to(this.kitchenRoom).emit('endedCooking', updatedOrderDish);
     client.emit('endedCooking', updatedOrderDish);
+  }
+
+  @SubscribeMessage('deliverDish')
+  async handleDeliverDish(
+    @MessageBody() data: number,
+    @ConnectedSocket() client: Socket,
+    @Req() request: RequestWithUser,
+  ) {
+    console.log(data);
+    const updatedOrderDish = await this.orderService.deliverDish(data);
+    client.to(this.kitchenRoom).emit('deliveredDish', updatedOrderDish);
+    client.emit('deliveredDish', updatedOrderDish);
   }
 }
