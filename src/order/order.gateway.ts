@@ -45,37 +45,49 @@ export class OrderGateway {
 
   @SubscribeMessage('startCooking')
   async handleStartCooking(
-    @MessageBody() data: number,
+    @MessageBody() orderDishId: number,
     @ConnectedSocket() client: Socket,
     @Req() request: RequestWithUser,
   ) {
-    console.log(data);
-    const updatedOrderDish = await this.orderService.startCooking(data);
+    console.log(orderDishId);
+    const updatedOrderDish = await this.orderService.startCooking(orderDishId);
     client.to(this.kitchenRoom).emit('startedCooking', updatedOrderDish);
     client.emit('startedCooking', updatedOrderDish);
   }
 
   @SubscribeMessage('endCooking')
   async handleEndCooking(
-    @MessageBody() data: number,
+    @MessageBody() orderDishId: number,
     @ConnectedSocket() client: Socket,
     @Req() request: RequestWithUser,
   ) {
-    console.log(data);
-    const updatedOrderDish = await this.orderService.endCooking(data);
+    console.log(orderDishId);
+    const updatedOrderDish = await this.orderService.endCooking(orderDishId);
     client.to(this.kitchenRoom).emit('endedCooking', updatedOrderDish);
     client.emit('endedCooking', updatedOrderDish);
   }
 
   @SubscribeMessage('deliverDish')
   async handleDeliverDish(
-    @MessageBody() data: number,
+    @MessageBody() orderDishId: number,
     @ConnectedSocket() client: Socket,
     @Req() request: RequestWithUser,
   ) {
-    console.log(data);
-    const updatedOrderDish = await this.orderService.deliverDish(data);
+    console.log(orderDishId);
+    const updatedOrderDish = await this.orderService.deliverDish(orderDishId);
     client.to(this.kitchenRoom).emit('deliveredDish', updatedOrderDish);
     client.emit('deliveredDish', updatedOrderDish);
+  }
+
+  @SubscribeMessage('payOrder')
+  async handlePayOrder(
+    @MessageBody() orderId: number,
+    @ConnectedSocket() client: Socket,
+    @Req() request: RequestWithUser,
+  ) {
+    console.log(orderId);
+    const updatedOrder = await this.orderService.changePayStatus(orderId);
+    client.to(this.kitchenRoom).emit('paidOrder', updatedOrder);
+    client.emit('paidOrder', updatedOrder);
   }
 }

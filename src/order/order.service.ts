@@ -150,6 +150,19 @@ export class OrderService {
     );
   }
 
+  async changePayStatus(orderId: number) {
+    const order = await this.orderRepo.findOne({
+      where: { id: orderId },
+    });
+
+    await this.orderRepo.update(orderId, { isPaid: !order.isPaid });
+
+    return await this.orderRepo.findOne({
+      where: { id: orderId },
+      relations: ['orderDishes', 'waiter', 'orderDishes.dish'],
+    });
+  }
+
   async getByWaiter(waiter: User) {
     return await this.orderRepo.find({
       where: {
