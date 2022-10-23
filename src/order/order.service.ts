@@ -6,7 +6,7 @@ import {
 } from 'src/dish/entities/orderDish.entity';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
-import { In, Repository } from 'typeorm';
+import { Between, In, MoreThanOrEqual, Repository } from 'typeorm';
 import { CreateOrderDto } from './dto/createOrderDto.dto';
 import { Order, OrderStatuses } from './entities/order.entity';
 
@@ -206,5 +206,55 @@ export class OrderService {
       where: { id: order.id },
       relations: ['orderDishes', 'orderDishes.dish', 'waiter'],
     });
+  }
+
+  async getReportByDishes(dateStart: Date, dateEnd: Date, dishIds: number[]) {
+    let orders = await this.orderRepo.find({
+      where: {
+        date: dateStart && dateEnd && Between(dateStart, dateEnd),
+      },
+      relations: ['orderDishes', 'orderDishes.dish', 'waiter'],
+    });
+
+    const dishes = await this.dishRepo.find({
+      where: {
+        id: In(dishIds),
+      },
+    });
+
+    let result = dishes.reduce(
+      (prev: Object, curr: Dish) => ({
+        ...prev,
+        [curr.id]: {
+          id: curr.id,
+          name: curr.name,
+          currentPrice: curr.price,
+          inOrders: 0,
+          count: 0,
+          totalPrice: 0,
+        },
+      }),
+      {},
+    );
+
+    for (let order of orders) {
+      for (let dish of order.orderDishes) {
+        let id = dish.dish.id;
+        if (result[id]) {
+          result[id].count += dish.count;
+          // тут есть проблема: если цена меняется во времени, то считать мы будем неправильно :(
+          result[id].totalPrice += dish.count * dish.dish.price;
+          result[id].inOrders += 1;
+        }
+      }
+    }
+
+    for (let key of Object.keys(result)) {
+      result[key].percent = Math.floor(
+        (result[key].inOrders / orders.length) * 100,
+      );
+    }
+
+    return Object.values(result);
   }
 }

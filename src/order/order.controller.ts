@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import JwtAuthenticationGuard from 'src/auth/guard/jwt.guard';
 import { RoleGuard } from 'src/auth/guard/role.guard';
 import RequestWithUser from 'src/auth/interface/requestWithUser.interface';
@@ -43,5 +51,21 @@ export class OrderController {
     const waiter = request.user;
 
     return this.orderService.create(dto, waiter);
+  }
+
+  @UseGuards(RoleGuard)
+  @UseGuards(JwtAuthenticationGuard)
+  @Roles(MANAGER)
+  @Get('/reportByDishes')
+  async getReportByDishes(
+    @Query('date_start') dateStart: Date,
+    @Query('date_end') dateEnd: Date,
+    @Query('dish_ids') dishIds: string = '',
+  ) {
+    return this.orderService.getReportByDishes(
+      dateStart,
+      dateEnd,
+      dishIds.split(',').map(Number),
+    );
   }
 }
